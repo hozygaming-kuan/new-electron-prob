@@ -285,8 +285,6 @@ body {
   display: flex;
   gap: 5px;
   padding: 5px;
-  /* 🔥 強制使用深灰色背景，不隨 Light Mode 變白 */
-  background: #252526;
   border-radius: 4px;
   border: 1px solid #454545;
   max-width: 100%;

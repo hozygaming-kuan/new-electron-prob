@@ -268,12 +268,14 @@ app.whenReady().then(() => {
       return { success: false, error: e.message };
     }
   });
+
   ipcMain.handle('window:minimize-progress', () => {
     if (progressWin) {
       progressWin.minimize();
     }
     return { success: true };
   });
+
   ipcMain.handle('system:export', async (_event, options = {}) => {
     try {
       // 1. 讀取遊戲名稱 (決定匯出資料夾的名字)
@@ -377,7 +379,6 @@ app.whenReady().then(() => {
     }
   });
 
-  // 4. 新增：讓新視窗來領取數據的指令
   ipcMain.handle('report:get-data', () => {
     return {
       result: reportCache,

@@ -1,18 +1,41 @@
-# Vue 3 + TypeScript + Vite
+# Slot Machine Simulator (Electron + Vue 3)
 
-This template should help get you started developing with Vue 3 and TypeScript in Vite. The template uses Vue 3 `<script setup>` SFCs, check out the [script setup docs](https://v3.vuejs.org/api/sfc-script-setup.html#sfc-script-setup) to learn more.
+這是一個基於 **Electron** 與 **Vue 3** 構建的高效能老虎機模擬器。支援 Excel 參數設定、多執行緒 (Worker) 快速運算，以及詳細的統計報表分析。
 
-## Recommended IDE Setup
+## 🚀 專案特色 (Key Features)
 
-- [VS Code](https://code.visualstudio.com/) + [Volar](https://marketplace.visualstudio.com/items?itemName=Vue.volar) (and disable Vetur) + [TypeScript Vue Plugin (Volar)](https://marketplace.visualstudio.com/items?itemName=Vue.vscode-typescript-vue-plugin).
+* **高效能模擬**：使用 `workerpool` 在後端開啟多執行緒進行運算，前端介面流暢不卡頓。
+* **多視窗架構**：
+    * **主控台**：遊戲試玩、參數調整、Excel 設定載入。
+    * **進度監控**：獨立的懸浮小視窗，支援拖移、最小化與隨時中止模擬。
+    * **統計報表**：模擬結束後自動彈出獨立報表視窗，提供詳細數據分析。
+* **詳細統計數據**：
+    * 包含 RTP、存活率、退幣率、標準差 (SD)、信賴區間 (CI 95%)。
+    * 支援主遊戲、免費遊戲 (Free Game) 的獨立數據與倍數分佈。
+    * 支援反向累積 RTP 與出現率分析。
+* **Excel 驅動**：直接讀取 Excel (`.xls`) 定義檔來驅動機率模型 (使用 `xlsx` 與自定義 Parser)。
+* **現代化 UI**：深色/淺色主題切換，專業的數據呈現排版。
 
-## Type Support For `.vue` Imports in TS
+## 🛠️ 技術棧 (Tech Stack)
 
-TypeScript cannot handle type information for `.vue` imports by default, so we replace the `tsc` CLI with `vue-tsc` for type checking. In editors, we need [TypeScript Vue Plugin (Volar)](https://marketplace.visualstudio.com/items?itemName=Vue.vscode-typescript-vue-plugin) to make the TypeScript language service aware of `.vue` types.
+* **Core**: Electron, TypeScript
+* **Frontend**: Vue 3, Vite
+* **State Management**: Vue Reactivity (Composition API)
+* **Data Processing**: SheetJS (xlsx), workerpool
+* **Styling**: Custom CSS variables (Dark/Light mode support)
 
-If the standalone TypeScript plugin doesn't feel fast enough to you, Volar has also implemented a [Take Over Mode](https://github.com/johnsoncodehk/volar/discussions/471#discussioncomment-1361669) that is more performant. You can enable it by the following steps:
+## 📂 專案結構 (Project Structure)
 
-1. Disable the built-in TypeScript Extension
-   1. Run `Extensions: Show Built-in Extensions` from VSCode's command palette
-   2. Find `TypeScript and JavaScript Language Features`, right click and select `Disable (Workspace)`
-2. Reload the VSCode window by running `Developer: Reload Window` from the command palette.
+```text
+.
+├── electron/
+│   ├── main.ts             # Electron 主進程 (視窗管理、IPC)
+│   ├── gameService.ts      # 遊戲服務入口
+│   ├── simulation/         # 模擬運算與統計模組 (StatsManager)
+│   └── rand-core/          # 核心機率邏輯 (Spin, Plate, Prize)
+├── src/
+│   ├── components/         # Vue 組件 (SlotMachine, ProgressWindow, ReportWindow)
+│   ├── composables/        # 邏輯複用 (useSlotGame, useReportUtils)
+│   ├── styles/             # 全域樣式 (dashboard, report)
+│   └── App.vue             # 路由分流 (Dashboard / Report / Progress)
+└── xls/                    # 遊戲設定檔存放區

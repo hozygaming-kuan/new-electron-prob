@@ -27,6 +27,7 @@ export class BaseStatModule implements IStatModule {
     const result = rawResult.game;
     if (!result) return;
 
+    if (totalWin > 0) this.data.winTimes++;
     // 1. 基礎數據累加 (對應舊版 onSpin 開頭)
     this.data.spinTimes++;
     this.data.totalBet += bet;
@@ -93,6 +94,7 @@ export class BaseStatModule implements IStatModule {
 
   // --- Merge ---
   merge(other: FullStatReport) {
+    this.data.winTimes += other.winTimes;
     this.data.spinTimes += other.spinTimes;
     this.data.totalBet += other.totalBet;
     this.data.totalWin += other.totalWin;
@@ -125,12 +127,23 @@ export class BaseStatModule implements IStatModule {
   getData() { return this.data; }
 
   // --- Get Result (對應 getEndReport) ---
-  getResult(rate?: number) {
+  getResult(rate?: number, targetRTP: number = 0.965) {
 
     const { totalWinList, spinTimes, totalBet, totalWin } = this.data;
     const multiplier = rate || 1;
     // 1. MaxWin & RTP
     let max = 0;
+
+    const countSD = function (totalWinList: number[], targetRTP: number, bet: number) {
+      let sum = 0;
+      for (let i = 0; i < totalWinList.length; i++) {
+        const win = totalWinList[i] / bet;
+        sum += Math.pow((win / (rate as number)) - targetRTP, 2);
+      }
+
+      return Math.sqrt(sum / spinTimes);
+    }
+
     for (let w of totalWinList) { if (w > max) max = w; }
 
     const realTotalBet = totalBet * multiplier;
@@ -139,18 +152,14 @@ export class BaseStatModule implements IStatModule {
     const avgBaseBet = spinTimes > 0 ? totalBet / spinTimes : 1;
     const avgRealBet = avgBaseBet * multiplier;
 
-    let sumSqDiff = 0;
-    for (let i = 0; i < totalWinList.length; i++) {
-      const val = (totalWinList[i] / avgRealBet) - finalRTP;
-      sumSqDiff += val * val;
-    }
-    const SD = spinTimes > 0 ? Math.sqrt(sumSqDiff / spinTimes) : 0;
-    const CI_RANGE = spinTimes > 0 ? (1.96 * SD / Math.sqrt(spinTimes)) : 0;
+    const SD = countSD(totalWinList, targetRTP, avgBaseBet);
+    const CI_RANGE = 1.96 * SD / Math.sqrt(spinTimes)
+
     const CI_MAX = finalRTP + CI_RANGE;
     const CI_MIN = finalRTP - CI_RANGE;
 
     // 3. Exit Rate
-    const exitResult = this.countExitRate(totalWinList, rate || 1);
+    const exitResult = this.countExitRate(totalWinList, rate || 1, avgBaseBet);
 
     // 4. Format Secret (Avg & Reverse)
     const formatSecret = (secret: RangeBucket[], denominator: number) => {
@@ -167,9 +176,10 @@ export class BaseStatModule implements IStatModule {
     return {
       // Raw Data
       bet: avgRealBet, // 平均注額
-      totalBet :realTotalBet,
+      totalBet: realTotalBet,
       totalWin,
       spinTimes,
+      winTimes: this.data.winTimes,
       mainWinTimes: this.data.mainWinTimes,
       mainWin: this.data.baseWin,
       freeWin: this.data.freeSpinWin,
@@ -190,11 +200,12 @@ export class BaseStatModule implements IStatModule {
       CI_MAX: CI_MAX,
       CI_MIN: CI_MIN,
       MaxWin: max,
-      rtp: (finalRTP * 100).toFixed(4) + '%' // 額外提供一個格式化好的字串
+      rtp: finalRTP
     };
   }
 
-  private countExitRate(winList: number[], rate: number) {
+  private countExitRate(winList: number[], rate: number, bet: number = 1) {
+
     const { exitStart, exitEnd, exitMaxWin } = this.exitInfo;
     let botGold = exitStart * rate;
     let botTotalGold = 0;
@@ -206,7 +217,7 @@ export class BaseStatModule implements IStatModule {
     const len = winList.length;
     for (let i = 0; i < len; i++) {
       botSpin++;
-      const win = winList[i];
+      const win = winList[i] / bet;
 
       if (win >= (exitMaxWin * rate)) {
         botGold -= (1 * rate); // 扣除成本 (舊邏輯)
@@ -227,7 +238,7 @@ export class BaseStatModule implements IStatModule {
     }
 
     return {
-      rate: botCount > 0 ? (botTotalGold / botCount / (exitStart * rate)) : 0,
+      rate: botTotalGold / botCount / exitStart,
       players: botCount,
       winPlayers: exitWinCount,
       totalGold: botTotalGold,
@@ -238,7 +249,7 @@ export class BaseStatModule implements IStatModule {
   private createEmptyData(): FullStatReport {
     return {
       totalWinList: [],
-      spinTimes: 0, totalBet: 0, totalWin: 0,
+      spinTimes: 0, totalBet: 0, totalWin: 0, winTimes: 0,
       totalSecret: this.createSecret(),
       mainSecret: this.createSecret(),
       freeSecret: this.createSecret(),

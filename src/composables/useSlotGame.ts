@@ -83,7 +83,7 @@ export function useSlotGame() {
   interface GameFrame { label: string; grid: string[][]; win: number; winningLines: number[][]; }
   const spinHistory = ref<GameFrame[]>([]);
   const currentFrameIndex = ref(0);
-  const currentGrid = computed(() => spinHistory.value.length === 0 ? [['0', '0', '0'], ['0', '0', '0'], ['0', '0', '0'], ['0', '0', '0'], ['0', '0', '0']] : spinHistory.value[currentFrameIndex.value].grid);
+  const currentGrid = computed(() => spinHistory.value.length === 0 ? [] : spinHistory.value[currentFrameIndex.value].grid);
   const currentWin = computed(() => spinHistory.value.length === 0 ? 0 : spinHistory.value[currentFrameIndex.value].win);
   const dynamicPaylines = ref<number[][]>([]);
   const symbolMap = reactive<Record<number, string>>({});
@@ -299,7 +299,7 @@ export function useSlotGame() {
     logs.value.unshift({
       id: Date.now(),
       title: `[系統] 切換模式: ${modeLabel}`,
-      details: [], // 不需要詳細內容，標題就夠了
+      details: [],
       isExpanded: false
     });
   };

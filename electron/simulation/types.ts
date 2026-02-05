@@ -53,6 +53,7 @@ export interface FullStatReport {
   totalWinList: number[];
   spinTimes: number;
   totalBet: number;
+  winTimes: number;
   totalWin: number; // 數值
 
   // 四種分佈數據 (對應舊版 Secret)

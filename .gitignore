@@ -9,6 +9,7 @@ lerna-debug.log*
 
 node_modules
 rand-core-lib
+dist-electron
 dist
 dist-ssr
 *.local
@@ -23,3 +24,8 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+context_backend_main.txt
+context_core_logic.txt
+context_config_parser.txt
+context_frontend.txt
