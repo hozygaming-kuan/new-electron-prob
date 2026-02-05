@@ -1,0 +1,827 @@
+/* src/styles/dashboard.css */
+
+/* --- 1. 定義顏色變數 (核心系統) --- */
+:root {
+  /* --- 深色主題 (預設) --- */
+  /* 核心背景 */
+  --bg-app: #1e1e1e;
+  --bg-panel: #252526;
+  --bg-panel-header: #333333;
+
+  /* 元件背景 */
+  --bg-input: #1e1e1e; /* 輸入框深凹感 */
+  --bg-hover: #2a2d2e;
+  --bg-card-header: rgba(255, 255, 255, 0.03); /* 卡片標題微亮 */
+
+  /* 邊框與文字 */
+  --border-color: #454545;
+  --text-primary: #cccccc;
+  --text-secondary: #969696;
+
+  /* 重點色 */
+  --accent-blue: #0e639c;
+  --accent-blue-hover: #1177bb;
+  --accent-green: #22863a;
+  --danger: #d73a49;
+}
+
+[data-theme="light"] {
+  /* 核心背景：改用柔和的灰，不再是刺眼純白 */
+  --bg-app: #e3e5e8; /* APP 底色：冷灰 */
+  --bg-panel: #f7f9fc; /* 面板：極淺的灰白 */
+  --bg-panel-header: #ebeef2; /* 標題列：稍深的灰 */
+
+  /* 元件背景 */
+  --bg-input: #ffffff; /* 輸入框維持純白，確保可讀性 */
+  --bg-hover: #dbe0e6; /* 滑鼠懸停 */
+  --bg-card-header: #e1e4e8;
+
+  /* 邊框與文字 */
+  --border-color: #cacedb; /* 邊框加深，增加立體感 */
+  --text-primary: #2c3e50; /* 深藍灰文字，比純黑柔和 */
+  --text-secondary: #5f6c7b;
+
+  /* 重點色 (稍微調整以配合灰色) */
+  --accent-blue: #0065b3;
+  --accent-blue-hover: #005699;
+  --accent-green: #15803d;
+  --danger: #dc2626;
+}
+
+/* --- 基礎設定 --- */
+* {
+  box-sizing: border-box;
+}
+body {
+  margin: 0;
+  padding: 0;
+  font-family: "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  font-size: 12px;
+  color: var(--text-primary); /* 全域文字顏色 */
+  background-color: var(--bg-app); /* 全域背景 */
+}
+
+/* --- 核心佈局 Grid --- */
+.dashboard-container {
+  display: grid;
+  grid-template-columns: 280px 1fr 280px;
+  height: 100vh;
+  background-color: var(--bg-app);
+  overflow: hidden;
+}
+
+/* --- 面板通用 --- */
+.panel {
+  display: flex;
+  flex-direction: column;
+  background: var(--bg-panel);
+  border-right: 1px solid var(--border-color);
+  overflow: hidden;
+}
+
+.panel-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 12px;
+  background: var(--bg-panel-header);
+  border-bottom: 1px solid var(--border-color);
+  height: 38px;
+  flex-shrink: 0;
+}
+.panel-title {
+  margin: 0;
+  font-size: 13px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: var(--text-primary);
+}
+
+/* --- 左側 Log --- */
+.header-tools {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 12px;
+}
+.checkbox-label {
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+  user-select: none;
+  color: var(--text-secondary);
+}
+.checkbox-label input {
+  margin-right: 6px;
+}
+
+.log-content {
+  flex: 1;
+  background: var(--bg-app);
+  padding: 8px;
+  overflow-y: auto;
+  min-height: 0;
+  font-family: "Consolas", "Courier New", monospace;
+  font-size: 12px;
+}
+
+.log-group {
+  border-bottom: 1px solid var(--border-color);
+  margin-bottom: 4px;
+  padding-bottom: 4px;
+}
+.log-title {
+  cursor: pointer;
+  padding: 3px 6px;
+  color: var(--text-primary);
+  font-weight: bold;
+  display: flex;
+  align-items: center;
+  border-radius: 3px;
+  transition: background-color 0.1s;
+}
+.log-title:hover {
+  background-color: var(--bg-hover);
+}
+.toggle-icon {
+  display: inline-block;
+  width: 14px;
+  font-size: 10px;
+  color: var(--text-secondary);
+  margin-right: 4px;
+}
+.log-details {
+  padding-left: 20px;
+}
+.log-detail-item {
+  color: var(--text-secondary);
+  line-height: 1.5;
+  white-space: pre-wrap;
+}
+
+/* Log 顏色特殊處理 */
+[data-theme="light"] .log-detail-item.detail {
+  color: #d68a00;
+}
+[data-theme="dark"] .log-detail-item.detail {
+  color: #dcdcaa;
+}
+[data-theme="light"] .log-detail-item.sub {
+  color: #005a9e;
+}
+[data-theme="dark"] .log-detail-item.sub {
+  color: #9cdcfe;
+}
+
+/* --- 中間主控台 --- */
+.center-panel {
+  background: var(--bg-app);
+  display: grid;
+  grid-template-rows: auto auto 1fr auto;
+}
+
+.stats-container {
+  background: var(--bg-panel);
+  padding: 10px;
+  border-bottom: 1px solid var(--border-color);
+  /* 🔥 新增：使用 Flex 讓內部的表格水平置中 */
+  display: flex;
+  justify-content: center;
+}
+
+.stats-table {
+  width: 100%;
+  /* 🔥 新增：限制最大寬度，讓數據集中 */
+  max-width: 400px;
+  border-collapse: collapse;
+  font-size: 13px;
+}
+
+.stats-table td {
+  padding: 6px 15px;
+  border-bottom: 1px solid var(--border-color);
+  color: var(--text-primary);
+  /* 🔥 新增：垂直置中 */
+  vertical-align: middle;
+}
+
+.stats-table tr:last-child td {
+  border-bottom: none;
+}
+.stats-table td:nth-child(1) {
+  color: var(--text-secondary);
+  width: 45%;
+}
+.stats-table td:nth-child(2) {
+  font-weight: bold;
+  text-align: right;
+}
+
+.balance-bar {
+  background: var(--bg-panel-header);
+  padding: 8px 15px;
+  display: flex;
+  align-items: baseline;
+  border-bottom: 1px solid var(--border-color);
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+  z-index: 1;
+}
+.balance-label {
+  color: var(--text-secondary);
+  margin-right: 10px;
+  font-size: 13px;
+}
+.balance-value {
+  font-size: 20px;
+  font-weight: bold;
+  color: var(--text-primary);
+  margin-right: auto;
+}
+.win-tag {
+  color: var(--accent-green);
+  font-weight: bold;
+  font-size: 15px;
+}
+
+/* 🔥🔥🔥 遊戲區域優化 🔥🔥🔥 */
+.game-area-wrapper {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+
+  /* 預設 (深色模式) */
+  background: #000000;
+  border: 1px solid #333; /* 加個邊框讓它有邊界感 */
+
+  padding: 20px;
+  overflow: hidden;
+  box-shadow: inset 0 0 30px rgba(0, 0, 0, 0.5);
+  flex-direction: column;
+  gap: 12px;
+
+  /* 圓角讓它看起來更像一個視窗 */
+  border-radius: 4px;
+  margin: 10px; /* 稍微留白，不要貼死邊緣 */
+}
+
+/* 🔥 針對亮色模式的特殊覆寫：銀白配色 */
+[data-theme="light"] .game-area-wrapper {
+  /* 改為灰白色漸層，模擬金屬機台質感 */
+  background: linear-gradient(145deg, #f0f0f0 0%, #dcdcdc 100%);
+
+  /* 邊框改為銀灰色 */
+  border: 1px solid #b0b0b0;
+
+  /* 調整陰影，讓它有浮起來的立體感 */
+  box-shadow:
+    5px 5px 15px rgba(0, 0, 0, 0.1),
+    -5px -5px 15px rgba(255, 255, 255, 0.8);
+}
+
+/* 歷史盤面導航列 */
+.frame-navigation {
+  display: flex;
+  gap: 5px;
+  padding: 5px;
+  /* 🔥 強制使用深灰色背景，不隨 Light Mode 變白 */
+  background: #252526;
+  border-radius: 4px;
+  border: 1px solid #454545;
+  max-width: 100%;
+  overflow-x: auto;
+  min-height: 42px;
+}
+
+.frame-btn {
+  /* 🔥 強制使用深色按鈕樣式 */
+  background: #3c3c3c;
+  color: #999;
+  border: 1px solid #555;
+  padding: 4px 10px;
+  cursor: pointer;
+  font-size: 12px;
+  min-width: 55px;
+  transition: all 0.1s;
+  font-family: "Segoe UI", sans-serif;
+  white-space: nowrap;
+}
+
+.frame-btn:hover {
+  /* 🔥 Hover 狀態也固定為深色系 */
+  background: #4a4a4a;
+  color: #fff;
+}
+
+.frame-btn.active {
+  /* 選中狀態維持藍色 */
+  background: #0e639c;
+  color: white;
+  border-color: #0e639c;
+  font-weight: bold;
+}
+
+.bottom-controls {
+  display: flex;
+  align-items: stretch;
+  background: var(--bg-panel-header);
+  height: 65px;
+  border-top: 1px solid var(--border-color);
+  padding-right: 10px; /* 🔥 右側留一點空間 */
+}
+.bet-control-group {
+  display: flex;
+  align-items: center;
+  padding: 0 10px;
+  gap: 10px;
+  border-right: 1px solid var(--border-color);
+}
+.bet-display,
+.win-display {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  min-width: 80px;
+}
+.win-display {
+  flex: 1;
+  border-right: 1px solid var(--border-color);
+  background: rgba(0, 0, 0, 0.05);
+}
+.bet-display .label,
+.win-display .label {
+  font-size: 10px;
+  color: var(--text-secondary);
+  text-transform: uppercase;
+}
+.bet-display .value,
+.win-display .value {
+  font-size: 20px;
+  font-weight: bold;
+  color: var(--text-primary);
+}
+.win-display .value {
+  color: var(--accent-green);
+}
+
+/* SPIN 按鈕 - 通用設定 */
+.btn-spin {
+  width: 120px;
+  height: 48px; /* 🔥 固定高度，不填滿 */
+  align-self: center; /* 🔥 垂直置中 */
+  margin: 0 12px; /* 🔥 左右留白，不貼邊 */
+  border-radius: 12px; /* 🔥 圓潤邊角 */
+  font-size: 18px;
+  font-weight: bold;
+  color: white;
+  background: var(--accent-blue);
+  border: none;
+  cursor: pointer;
+  transition: all 0.2s;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2); /* 🔥 加一點陰影 */
+}
+
+/* 深色模式 Hover */
+.btn-spin:hover:not(:disabled) {
+  background: var(--accent-blue-hover);
+  transform: translateY(-1px);
+  box-shadow: 0 6px 8px rgba(0, 0, 0, 0.3);
+}
+.btn-spin:disabled {
+  background: #555;
+  cursor: not-allowed;
+  box-shadow: none;
+  transform: none;
+}
+
+/* 🔥 針對亮色模式的 SPIN 按鈕優化：更有質感 */
+[data-theme="light"] .btn-spin {
+  /* 漸層背景 */
+  background: linear-gradient(180deg, #3498db 0%, #0e639c 100%);
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
+
+  /* 多層陰影製造立體感 */
+  box-shadow:
+    0 0 0 2px #dcdcdc,
+    /* 銀色外環 */ 0 4px 8px rgba(0, 0, 0, 0.3),
+    /* 外部陰影 */ inset 0 2px 3px rgba(255, 255, 255, 0.4); /* 內部高光 */
+}
+
+/* 亮色模式 Hover */
+[data-theme="light"] .btn-spin:hover:not(:disabled) {
+  background: linear-gradient(180deg, #4aa3df 0%, #1a75b3 100%);
+  box-shadow:
+    0 0 0 2px #dcdcdc,
+    0 6px 12px rgba(0, 101, 179, 0.3),
+    inset 0 2px 3px rgba(255, 255, 255, 0.6);
+  transform: translateY(-2px);
+}
+
+/* 亮色模式 Active */
+[data-theme="light"] .btn-spin:active {
+  background: linear-gradient(180deg, #0e639c 0%, #0c4f7f 100%);
+  box-shadow:
+    0 0 0 2px #dcdcdc,
+    0 2px 4px rgba(0, 0, 0, 0.2),
+    inset 0 3px 5px rgba(0, 0, 0, 0.3);
+  transform: translateY(1px);
+}
+
+.btn-square {
+  width: 36px;
+  height: 36px;
+  font-size: 20px;
+  background: var(--bg-input);
+  border: 1px solid var(--border-color);
+  color: var(--text-primary);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 4px;
+}
+.btn-square:hover {
+  background: var(--bg-hover);
+}
+
+/* --- 🔥 右側面板 (Settings) 無縫融合版 🔥 --- */
+.right-panel {
+  border-right: none;
+  border-left: 1px solid var(--border-color);
+  padding: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  /* 🔥 關鍵：使用跟左側一樣的背景色，消除斑馬紋 */
+  background: var(--bg-panel);
+  overflow-y: auto;
+}
+
+.control-card {
+  /* 🔥 關鍵：背景透明，只留邊框 */
+  background: transparent;
+  border: 1px solid var(--border-color);
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.panel-section {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+.card-header {
+  background: var(--bg-card-header);
+  padding: 5px 10px;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.card-title {
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.card-body {
+  padding: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.action-area,
+.quick-btns,
+.dropdown-row {
+  display: flex;
+  gap: 8px;
+}
+
+/* 輸入框 */
+.input-group label {
+  font-size: 11px;
+  color: var(--text-secondary);
+  margin-bottom: 3px;
+  display: block;
+}
+
+.custom-input,
+.custom-select {
+  width: 100%;
+  background: var(--bg-input);
+  border: 1px solid var(--border-color);
+  color: var(--text-primary);
+  padding: 0 8px;
+  border-radius: 4px;
+  outline: none;
+  height: 28px;
+  font-size: 13px;
+}
+.custom-input:focus,
+.custom-select:focus {
+  border-color: var(--accent-blue);
+}
+.custom-select {
+  flex: 1;
+}
+
+.grid-2-col {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
+
+/* 輸入列 (Volatility) */
+.input-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.input-row .custom-input {
+  flex: 1;
+  text-align: right;
+}
+.suffix-label {
+  font-size: 11px;
+  color: var(--text-secondary);
+  white-space: nowrap;
+  width: 60px;
+  text-align: left;
+  margin-left: 2px;
+}
+
+/* 按鈕變體 */
+.full-width {
+  width: 100%;
+}
+
+.btn-primary {
+  background: var(--accent-blue);
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background 0.1s;
+}
+.btn-primary:hover {
+  background: var(--accent-blue-hover);
+}
+
+.btn-secondary {
+  background: var(--bg-input);
+  color: var(--text-primary);
+  border: 1px solid var(--border-color);
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background 0.1s;
+}
+.btn-secondary:hover {
+  background: var(--bg-hover);
+}
+
+.btn-block {
+  flex: 1;
+  font-weight: 600;
+  font-size: 12px;
+  text-align: center;
+  padding: 0;
+  height: 28px;
+  line-height: 28px;
+}
+
+.btn-action {
+  background: var(--accent-blue);
+  color: white;
+  border: none;
+  border-radius: 4px;
+  padding: 0 14px;
+  cursor: pointer;
+  font-weight: 600;
+  font-size: 12px;
+  height: 28px;
+  white-space: nowrap;
+}
+.btn-action:hover {
+  background: var(--accent-blue-hover);
+}
+.btn-action:disabled {
+  background: var(--bg-input);
+  color: var(--text-secondary);
+  border: 1px solid var(--border-color);
+  cursor: not-allowed;
+}
+
+.btn-xs {
+  padding: 1px 8px;
+  font-size: 11px;
+  background: var(--bg-input);
+  color: var(--text-secondary);
+  border: 1px solid var(--border-color);
+  border-radius: 3px;
+  cursor: pointer;
+}
+.btn-xs:hover {
+  color: var(--text-primary);
+  border-color: var(--text-primary);
+}
+
+/* 🔥🔥🔥 閃電按鈕優化版 (魔幻紫) 🔥🔥🔥 */
+.btn-lightning {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  
+  /* 修改背景：改用深紫色漸層，讓黃色閃電跳出來 */
+  background: linear-gradient(135deg, #7c3aed, #5b21b6);
+  
+  color: white;
+  border: none;
+  border-radius: 4px;
+  font-weight: bold;
+  font-size: 13px;
+  cursor: pointer;
+  
+  /* 紫色系陰影 */
+  box-shadow: 0 2px 4px rgba(124, 58, 237, 0.4);
+  
+  transition: transform 0.1s;
+  height: 32px;
+}
+
+.btn-lightning:hover {
+  transform: translateY(-1px);
+  /* Hover 時變亮一點 */
+  background: linear-gradient(135deg, #8b5cf6, #6d28d9);
+}
+
+.btn-lightning:active {
+  transform: translateY(1px);
+}
+
+/* Helper classes */
+.btn-sm {
+  height: 28px;
+  line-height: 28px;
+  font-size: 12px;
+}
+.input-sm,
+.select-sm,
+.btn-sm-action {
+  height: 28px;
+  font-size: 12px;
+}
+.input-row.dense {
+  gap: 6px;
+  margin-bottom: 0;
+}
+
+/* Mode Buttons (Prizes) */
+.mode-btn-group {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+.mode-btn {
+  background: var(--bg-input);
+  border: 1px solid var(--border-color);
+  color: var(--text-secondary);
+  padding: 5px 10px;
+  font-size: 12px;
+  text-align: left;
+  cursor: pointer;
+  border-radius: 4px;
+  transition: all 0.1s;
+}
+.mode-btn:hover {
+  background: var(--bg-hover);
+  color: var(--text-primary);
+}
+.mode-btn.active {
+  background: var(--accent-blue);
+  color: white;
+  border-color: var(--accent-blue);
+  font-weight: bold;
+}
+
+/* 🔥 主題切換按鈕 */
+.theme-toggle-btn {
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  font-size: 16px;
+  padding: 0 4px;
+  line-height: 1;
+  border-radius: 4px;
+  transition:
+    transform 0.2s,
+    background-color 0.2s;
+}
+.theme-toggle-btn:hover {
+  background-color: var(--bg-hover);
+  transform: scale(1.1);
+}
+
+/* 滾動條 */
+.custom-scrollbar::-webkit-scrollbar {
+  width: 8px;
+}
+.custom-scrollbar::-webkit-scrollbar-track {
+  background: var(--bg-app);
+}
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background: #444;
+  border-radius: 4px;
+}
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: #555;
+}
+
+/* 🔥🔥🔥 System Actions 緊湊單行版 CSS 🔥🔥🔥 */
+
+/* 外層容器：水平排列，垂直置中，設定間距 */
+.system-compact-row {
+  display: flex;
+  align-items: center;
+  gap: 8px; /* 元件之間的間距 */
+  height: 32px; /* 🔥 稍微增加高度，給一點呼吸空間 */
+  padding: 2px 0;
+}
+
+/* 開關組合：把文字標籤和開關綁在一起 */
+.compact-switch-group {
+  display: flex;
+  align-items: center;
+  gap: 4px; /* 標籤跟開關之間的間距 */
+  white-space: nowrap; /* 防止標籤換行 */
+}
+
+/* 複用之前的標籤樣式，稍微調整邊距 */
+.switch-label {
+  font-size: 11px;
+  font-weight: 700; /* 加粗一點點 */
+  color: var(--text-secondary);
+  opacity: 0.9; /* 稍微亮一點，比較好讀 */
+  margin-right: 2px;
+}
+
+/* 複用之前的 Toggle Switch 小尺寸樣式 */
+.toggle-switch.small {
+  position: relative;
+  display: inline-block;
+  width: 30px;
+  height: 16px;
+  flex-shrink: 0; /* 防止開關被壓縮 */
+}
+
+/* 隱藏原始 checkbox */
+.toggle-switch input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+/* 滑軌 */
+.slider {
+  position: absolute;
+  cursor: pointer;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: #555; /* 深色模式預設灰 */
+  transition: 0.3s;
+  border-radius: 20px;
+}
+
+/* 亮色模式微調 */
+[data-theme="light"] .slider {
+  background-color: #ccc;
+}
+
+/* 圓鈕 */
+.slider:before {
+  position: absolute;
+  content: "";
+  height: 12px; /* 原本 16px */
+  width: 12px; /* 原本 16px */
+  left: 2px;
+  bottom: 2px;
+  background-color: white;
+  transition: 0.3s;
+  border-radius: 50%;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+}
+
+/* 開啟狀態 (Checked) */
+.toggle-switch input:checked + .slider {
+  background-color: var(--accent-blue);
+}
+
+/* 圓鈕移動 */
+.toggle-switch input:checked + .slider:before {
+  transform: translateX(14px); /* 配合縮小的寬度調整位移 */
+}

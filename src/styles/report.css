@@ -1,0 +1,142 @@
+/* src/styles/report.css */
+
+/* 報表容器 */
+.report-container {
+  padding: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+  overflow-y: auto;
+  height: 100%;
+}
+
+/* 卡片外框 */
+.section-card {
+  background: var(--bg-panel);
+  border: 1px solid var(--border-color);
+  border-radius: 4px;
+  overflow: hidden;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+/* 卡片標題列 */
+.section-header {
+  background: var(--bg-panel-header);
+  padding: 8px 12px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  border-bottom: 1px solid var(--border-color);
+  user-select: none;
+  transition: background 0.2s;
+}
+.section-header:hover {
+  background: var(--bg-hover);
+}
+.section-header .title {
+  font-weight: bold;
+  font-size: 13px;
+  color: var(--text-primary);
+}
+.toggle-icon {
+  margin-right: 8px;
+  font-size: 10px;
+  color: var(--text-secondary);
+  width: 12px;
+  text-align: center;
+}
+
+/* 卡片內容區 */
+.section-body {
+  padding: 15px;
+  background: var(--bg-app);
+}
+
+/* 三欄佈局 (Grid System) */
+.grid-3-col {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 15px;
+}
+
+/* 統計小方塊 (Stat Box) */
+.stat-box {
+  background: var(--bg-panel);
+  border: 1px solid var(--border-color);
+  border-radius: 4px;
+  padding: 0;
+  overflow: hidden;
+}
+.stat-box.empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  color: var(--text-secondary);
+  min-height: 200px;
+}
+.box-title {
+  background: var(--bg-card-header);
+  padding: 6px 10px;
+  font-size: 12px;
+  font-weight: bold;
+  border-bottom: 1px solid var(--border-color);
+  color: var(--text-primary);
+  text-align: center;
+}
+
+/* 數據表格 (Data Table - key/value 型) */
+.data-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 12px;
+}
+.data-table td {
+  padding: 5px 10px;
+  border-bottom: 1px solid var(--border-color);
+  color: var(--text-secondary);
+}
+.data-table td:nth-child(2) {
+  text-align: right;
+  color: var(--text-primary);
+  font-weight: 500;
+  font-family: 'Consolas', monospace;
+}
+.data-table tr:last-child td {
+  border-bottom: none;
+}
+.data-table tr.highlight td {
+  color: var(--accent-blue);
+  font-weight: bold;
+  background: rgba(14, 99, 156, 0.1); /* 使用主題色 */
+}
+
+/* 寬版列表格 (Full Width Table - list 型) */
+.full-width-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 12px;
+  border: 1px solid var(--border-color);
+}
+.full-width-table th, .full-width-table td {
+  padding: 6px 10px;
+  border: 1px solid var(--border-color);
+  text-align: center;
+}
+.full-width-table th {
+  background: var(--bg-card-header);
+  color: var(--text-primary);
+  font-weight: bold;
+}
+.full-width-table td {
+  color: var(--text-secondary);
+  font-family: 'Consolas', monospace;
+}
+/* 斑馬紋 */
+.full-width-table tr:nth-child(even) {
+  background: rgba(255, 255, 255, 0.02);
+}
+.full-width-table tr:hover {
+  background: var(--bg-hover);
+  color: var(--text-primary);
+}

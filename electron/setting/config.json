@@ -1,0 +1,17 @@
+
+{
+  "components": [
+    {
+      "model": "BaseStatModule",
+      "view": "BaseReportView"
+    },
+    {
+      "model": "LineStatModule",
+      "view": "LineReportView"
+    },
+    {
+      "model": "ScatterStatModule",
+      "view": "ScatterReportView"
+    }
+  ]
+}

@@ -1,0 +1,9 @@
+{
+  "name": "mtg-bonusBearGold",
+  "mainPrizes": {
+    "line": "/module/line.js"
+  },
+  "freePrizes": {
+    "line": "/module/line.js"
+  }
+}

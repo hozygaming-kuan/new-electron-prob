@@ -1,0 +1,15 @@
+/* src/style.css */
+
+/* 重置瀏覽器預設邊距 */
+body {
+  margin: 0;
+  padding: 0;
+  overflow: hidden; /* 防止視窗出現不必要的捲軸 */
+  background-color: #1e1e1e; /* 配合你的深色主題 */
+}
+
+/* 確保 #app 撐滿全螢幕 */
+#app {
+  width: 100vw;
+  height: 100vh;
+}

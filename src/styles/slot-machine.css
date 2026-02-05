@@ -1,0 +1,129 @@
+.slot-machine-container {
+  position: relative;
+  display: inline-block;
+  padding: 10px;
+  background: #000; /* 機器底色 */
+  border-radius: 8px;
+  border: 2px solid #555;
+  box-shadow: inset 0 0 10px #000;
+}
+
+.reel-frame {
+  display: flex; /* 讓 Reel 左右排列 */
+  gap: 4px;      /* Reel 之間的間距 */
+}
+
+.reel-col {
+  display: flex;
+  flex-direction: column; /* Reel 內部上下排列 */
+  gap: 4px;               /* Symbol 之間的間距 */
+}
+
+/* 轉動時的動態效果 (模糊) */
+.spinning .reel-col {
+  filter: blur(4px);
+  transform: scale(0.98);
+  opacity: 0.7;
+  transition: all 0.2s;
+}
+
+.symbol-cell {
+  position: relative;
+  /* 🔥 修改這裡：加大尺寸 */
+  width: 110px;  /* 原本 80px */
+  height: 95px;  /* 原本 70px */
+  background: #222;
+  border-radius: 6px;
+  overflow: hidden; 
+  border: 1px solid #333;
+}
+
+.symbol-inner {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 24px;
+  font-family: 'Arial Black', sans-serif; /* 粗體字型 */
+}
+
+/* 右下角的座標 Debug 顯示 */
+.coord-debug {
+  position: absolute;
+  bottom: 2px;
+  right: 3px;
+  font-size: 9px;
+  color: #444;
+  pointer-events: none;
+  font-family: monospace;
+}
+
+/* 遮罩層 */
+.spin-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.2);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 10;
+  backdrop-filter: blur(1px);
+}
+
+.loading-text {
+  color: #00ff00;
+  font-weight: bold;
+  font-family: monospace;
+  background: rgba(0,0,0,0.8);
+  padding: 5px 10px;
+  border-radius: 4px;
+}
+
+.symbol-inner {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #222; /* 圖片透明時的底色 */
+  position: relative;
+}
+
+/* 新增圖片樣式 */
+.symbol-img {
+  width: 90%;       /* 留一點邊距 */
+  height: 90%;
+  object-fit: contain; /* 確保圖片比例不變，完整顯示 */
+  display: block;
+}
+
+/* 如果有加 ID 疊加層 */
+.id-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  font-size: 10px;
+  color: rgba(255, 255, 255, 0.5);
+  padding: 2px;
+  background: rgba(0,0,0,0.5);
+}
+
+/* ... (原本的 CSS 保持不變) ... */
+
+/* 🔥 新增中獎動畫 */
+@keyframes win-pulse {
+  0% { box-shadow: 0 0 0 0 rgba(255, 215, 0, 0.7); border-color: gold; }
+  50% { box-shadow: 0 0 15px 5px rgba(255, 215, 0, 0.3); border-color: #fff; transform: scale(1.05); }
+  100% { box-shadow: 0 0 0 0 rgba(255, 215, 0, 0); border-color: gold; transform: scale(1); }
+}
+
+.symbol-cell.win-anim {
+  z-index: 10; /* 確保特效蓋在最上層 */
+  border: 2px solid gold !important;
+  animation: win-pulse 1s infinite;
+  background-color: rgba(255, 215, 0, 0.2);
+}
