@@ -25,7 +25,9 @@ const ALLOW_EXTS = ['.ts', '.vue', '.js', '.json', '.css', '.html'];
 const GLOBAL_FILES = [
     'package.json',
     'tsconfig.json',
-    'vite.config.ts'
+    'vite.config.ts',
+    'build-release.cjs',
+    'scaffold.cjs'
 ];
 
 // ================= 邏輯區 (自動分類器) =================
