@@ -42,13 +42,7 @@ class GameService {
 
   init() {
     console.log('[GameService] Initializing...');
-
-    // 計算 rand-core 路徑
-    // 技巧：__dirname 在開發模式下是 .../dist-electron
-    // 我們要找的是 .../electron/rand-core/index.js
-    const libraryPath = !app.isPackaged
-      ? path.resolve(__dirname, '../electron/rand-core/index.js')
-      : path.join(process.resourcesPath, 'rand-core/index.js');
+    const libraryPath = path.resolve(__dirname, '../electron/rand-core/index.js')
 
     console.log('[GameService] Target Core Path:', libraryPath);
 

@@ -7,21 +7,19 @@
     "scaffold": "node scaffold.cjs",
     "dev:vite": "chcp 65001 && vite",
     "dev": "node scaffold.cjs --watch",
-    "build": "node scaffold.cjs && vite build && electron-builder",
+    "typecheck-skip": "node scaffold.cjs",
+    "build": "node build-release.cjs",
     "preview": "vite preview"
   },
   "build": {
     "appId": "slotGame",
     "asar": false,
-    "extraResources": [
-      {
-        "from": "electron/rand-core",
-        "to": "rand-core"
-      },
-      {
-        "from": "electron/setting",
-        "to": "setting"
-      }
+    "files": [
+      "dist/**/*",
+      "dist-electron/**/*",
+      "package.json",
+      "electron/rand-core/**/*",
+      "electron/setting/**/*"
     ]
   },
   "dependencies": {

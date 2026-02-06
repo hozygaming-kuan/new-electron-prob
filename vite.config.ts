@@ -33,8 +33,8 @@ export default defineConfig({
         ],
         vite: {
           build: {
-            // 🔥🔥🔥 修改這裡：加入 output 設定，強制固定檔名 🔥🔥🔥
             minify: false,
+            sourcemap: false,
             rollupOptions: {
               external: ['workerpool'], // 這是原本就有的
               output: {

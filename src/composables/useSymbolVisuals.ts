@@ -7,7 +7,7 @@ export function useSymbolVisuals() {
   const getSymbolImage = (symbolId: string) => {
     // 假設你的圖片格式都是 png
     if (symbolId === '23') symbolId = '22'
-    return `/symbols/${symbolId}.png`;
+    return `symbols/${symbolId}.png`;
   };
 
   const getSymbolStyle = (symbolId: string) => {

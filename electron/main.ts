@@ -16,7 +16,12 @@ process.env.APP_ROOT = path.join(__dirname, '..');
 
 // 🔥 修正後的 require
 const require = createRequire(import.meta.url);
-const parserServicePath = path.join(process.env.APP_ROOT, 'electron/rand-core/parser/parserService.js');
+
+const parserServicePath = path.join(process.env.APP_ROOT, 'electron/rand-core/parser/parserService.js'); // 開發時：去原始碼找
+
+// 用 console.log 檢查 (打包後可以用終端機看)
+console.log('[Main] Parser Service Path:', parserServicePath);
+
 const ParserService = require(parserServicePath);
 const workerpool = require('workerpool');
 // ... (後面的變數定義)
@@ -107,14 +112,10 @@ function createAppMenu(win: BrowserWindow) {
 
 function loadStatConfig() {
   try {
-    // 定義路徑：
-    // 開發模式: 專案根目錄/electron/setting/config.json
-    // 打包模式: resources/setting/config.json (需要在 builder config 設定，稍後說明)
-    const configPath = app.isPackaged
-      ? path.join(process.resourcesPath, 'setting', 'config.json')
-      : path.join(process.env.APP_ROOT, 'electron', 'setting', 'config.json');
 
-    // console.log('[Main] Loading Stat Config from:', configPath);
+    const configPath = path.join(__dirname, '../electron/setting/config.json');
+
+    console.log('[Main] Loading Stat Config from:', configPath);
 
     if (fs.existsSync(configPath)) {
       const data = fs.readFileSync(configPath, 'utf-8');
@@ -127,10 +128,7 @@ function loadStatConfig() {
 
 function loadGameSpec() {
   try {
-    const specPath = app.isPackaged
-      ? path.join(process.resourcesPath, 'rand-core/config/spec.json')
-      : path.join(process.env.APP_ROOT, 'electron/rand-core/config/spec.json');
-
+    const specPath = path.join(process.env.APP_ROOT, 'electron/rand-core/config/spec.json');
     if (fs.existsSync(specPath)) {
       const data = fs.readFileSync(specPath, 'utf-8');
       return JSON.parse(data);
@@ -265,7 +263,9 @@ app.whenReady().then(() => {
       const rootDir = process.cwd();
 
       // 2. 組合完整路徑 (對應到 xls/config-game/...)
-      const filePath = path.join(rootDir, 'xls', 'config-game', fileName);
+      const filePath = app.isPackaged ?
+        path.join(rootDir, '../', 'config-game', fileName) :
+        path.join(rootDir, 'xls', 'config-game', fileName);
 
       console.log('[Main] Opening file:', filePath);
 
@@ -285,7 +285,9 @@ app.whenReady().then(() => {
 
   ipcMain.handle('system:get-excel-files', async () => {
     try {
-      const rootDir = path.join(process.cwd(), 'xls', 'config-game');
+      const rootDir = app.isPackaged ?
+        path.join(process.cwd(), '../', 'config-game') :
+        path.join(process.cwd(), 'xls', 'config-game');
 
       // 遞迴掃描函式
       const getFilesRecursively = (dir: string, fileList: string[] = []) => {
@@ -328,7 +330,9 @@ app.whenReady().then(() => {
       // 1. 執行 Excel 轉檔 (Parser)
       // 預設路徑通常是專案根目錄下的 xls 資料夾，這裡假設你的結構
       const rootDir = process.cwd();
-      const xlsDir = path.join(rootDir, 'xls');
+      const xlsDir = app.isPackaged ?
+        path.join(process.cwd(), '../') :
+        path.join(rootDir, 'xls');
 
       console.log('[Main] Parsing Excel from:', xlsDir);
       ParserService.parse(xlsDir); // 這會重新產生 JSON 到 config 資料夾
@@ -367,9 +371,7 @@ app.whenReady().then(() => {
       console.log(`[Main] Exporting Game: ${exportFolderName}`, options);
 
       // 2. 定義來源路徑 (你的 rand-core 位置)
-      const sourcePath = app.isPackaged
-        ? path.join(process.resourcesPath, 'rand-core')
-        : path.join(process.env.APP_ROOT, 'electron/rand-core');
+      const sourcePath = path.join(process.env.APP_ROOT, 'electron/rand-core');
 
       // 3. 開啟資料夾選擇框
       const result = await dialog.showOpenDialog({
@@ -419,7 +421,7 @@ app.whenReady().then(() => {
       if (exportSource) {
         console.log('[Main] Copying Source XLS...');
         const xlsSourcePath = app.isPackaged
-          ? path.join(process.resourcesPath, '../xls/config-game') // 假設使用者把 xls 放在 exe 旁邊的 xls 資料夾
+          ? path.join(process.cwd(), '../', '../config-game') // 假設使用者把 xls 放在 exe 旁邊的 xls 資料夾
           : path.join(process.cwd(), 'xls', 'config-game');
         const xlsDestPath = path.join(destPath, 'config-game-source');
 
@@ -488,9 +490,7 @@ app.whenReady().then(() => {
     const totalSpins = rawConfig.simConfig.rounds || 100000;
     const workerCount = 10;
     const spinsPerWorker = Math.floor(totalSpins / workerCount);
-    const randCorePath = app.isPackaged
-      ? path.join(process.resourcesPath, 'rand-core/index.js')
-      : path.join(process.env.APP_ROOT, 'electron/rand-core/index.js');
+    const randCorePath = path.join(process.env.APP_ROOT, 'electron/rand-core/index.js');
 
     const config = GameService.getGameConfig();
     const defineConfig = GameService.getDefineConfig();

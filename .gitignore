@@ -11,6 +11,7 @@ node_modules
 rand-core-lib
 dist-electron
 dist
+release/
 dist-ssr
 *.local
 
@@ -29,3 +30,4 @@ context_backend_main.txt
 context_core_logic.txt
 context_config_parser.txt
 context_frontend.txt
+debug-tree.cjs
