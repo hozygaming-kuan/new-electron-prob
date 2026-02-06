@@ -12,6 +12,8 @@
   --bg-input: #1e1e1e; /* 輸入框深凹感 */
   --bg-hover: #2a2d2e;
   --bg-card-header: rgba(255, 255, 255, 0.03); /* 卡片標題微亮 */
+  --bg-stat-item: rgba(255, 255, 255, 0.03);
+  --table-stripe: rgba(255, 255, 255, 0.02);
 
   /* 邊框與文字 */
   --border-color: #454545;
@@ -35,7 +37,8 @@
   --bg-input: #ffffff; /* 輸入框維持純白，確保可讀性 */
   --bg-hover: #dbe0e6; /* 滑鼠懸停 */
   --bg-card-header: #e1e4e8;
-
+  --bg-stat-item: rgba(0, 0, 0, 0.05);
+  --table-stripe: rgba(0, 0, 0, 0.05);
   /* 邊框與文字 */
   --border-color: #cacedb; /* 邊框加深，增加立體感 */
   --text-primary: #2c3e50; /* 深藍灰文字，比純黑柔和 */
@@ -632,20 +635,20 @@ body {
   display: flex;
   justify-content: center;
   align-items: center;
-  
+
   /* 修改背景：改用深紫色漸層，讓黃色閃電跳出來 */
   background: linear-gradient(135deg, #7c3aed, #5b21b6);
-  
+
   color: white;
   border: none;
   border-radius: 4px;
   font-weight: bold;
   font-size: 13px;
   cursor: pointer;
-  
+
   /* 紫色系陰影 */
   box-shadow: 0 2px 4px rgba(124, 58, 237, 0.4);
-  
+
   transition: transform 0.1s;
   height: 32px;
 }
@@ -822,4 +825,63 @@ body {
 /* 圓鈕移動 */
 .toggle-switch input:checked + .slider:before {
   transform: translateX(14px); /* 配合縮小的寬度調整位移 */
+}
+
+.modal-overlay {
+  position: fixed;
+  top: 0; left: 0;
+  width: 100vw; height: 100vh;
+  background: rgba(0, 0, 0, 0.5); /* 半透明黑底 */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 9999; /* 確保在最上層 */
+  backdrop-filter: blur(2px); /* 背景模糊特效 */
+}
+
+.modal-content {
+  background: var(--bg-panel);
+  border: 1px solid var(--border-color);
+  padding: 20px;
+  border-radius: 8px;
+  box-shadow: 0 10px 25px rgba(0,0,0,0.5);
+  width: 300px;
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.modal-title {
+  font-size: 16px;
+  font-weight: bold;
+  color: var(--text-primary);
+  margin-bottom: 5px;
+}
+
+.modal-input {
+  width: 100%;
+  padding: 8px;
+  background: var(--bg-input);
+  border: 1px solid var(--border-color);
+  color: var(--text-primary);
+  border-radius: 4px;
+  font-size: 14px;
+  outline: none;
+}
+.modal-input:focus { border-color: var(--accent-blue); }
+
+.modal-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+}
+
+/* 復用原本的按鈕樣式 */
+.btn-save {
+  background: var(--accent-green);
+  color: white; border: none; padding: 6px 12px; border-radius: 4px; cursor: pointer;
+}
+.btn-cancel {
+  background: transparent; border: 1px solid var(--border-color);
+  color: var(--text-secondary); padding: 6px 12px; border-radius: 4px; cursor: pointer;
 }

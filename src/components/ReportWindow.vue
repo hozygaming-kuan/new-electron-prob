@@ -19,15 +19,14 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue';
 import { ReportViewRegistry } from './reports';
-// import '../styles/report.css'; 
+import '../styles/report.css';
 
 const loading = ref(true);
 const error = ref('');
 const resultData = ref<any>(null);
 const reportComponents = ref<any[]>([]);
 
-// 🔥 修改這裡：改成通用邏輯，自動把 StatModule 去掉並轉小寫
-// 這樣 BaseStatModule -> base, LineStatModule -> line, ScatterStatModule -> scatter
+// 自動把 StatModule 去掉並轉小寫
 const getResultKey = (modelName: string) => {
   return modelName.replace('StatModule', '').toLowerCase();
 };
@@ -58,32 +57,10 @@ onMounted(async () => {
   color: var(--text-primary, #333);
   box-sizing: border-box;
 }
-
-.report-wrapper { 
-  margin-bottom: 20px; 
-}
-
-.loading, .error { 
-  text-align: center; 
-  margin-top: 50px; 
-  font-size: 18px; 
-}
-.error { 
-  color: red; 
-}
-
-.report-window-container::-webkit-scrollbar {
-  width: 10px;
-}
-.report-window-container::-webkit-scrollbar-track {
-  background: var(--bg-app, #f0f0f0);
-}
-.report-window-container::-webkit-scrollbar-thumb {
-  background: #555;
-  border-radius: 5px;
-  border: 2px solid var(--bg-app, #f0f0f0);
-}
-.report-window-container::-webkit-scrollbar-thumb:hover {
-  background: #777;
-}
+.report-wrapper { margin-bottom: 20px; }
+.loading, .error { text-align: center; margin-top: 50px; font-size: 18px; }
+.error { color: red; }
+.report-window-container::-webkit-scrollbar { width: 10px; }
+.report-window-container::-webkit-scrollbar-track { background: var(--bg-app, #f0f0f0); }
+.report-window-container::-webkit-scrollbar-thumb { background: #555; border-radius: 5px; border: 2px solid var(--bg-app, #f0f0f0); }
 </style>

@@ -1,5 +1,5 @@
 
-import { GlobalContext, IStatModule } from '../types';
+import { GlobalContext, IStatModule, RawResult } from '../types';
 
 export class WildStatModule implements IStatModule {
   name = 'wild';
@@ -24,14 +24,24 @@ export class WildStatModule implements IStatModule {
         'win': 0,
       }
     }
+    this.main['total'] = {
+      'name': `ALL`,
+      'count': 0,
+      'win': 0,
+    }
+    this.free['total'] = {
+      'name': `ALL`,
+      'count': 0,
+      'win': 0,
+    }
   }
 
-  onSpin(_bet: number, _totalWin: number, _rawResult: any, _lineCount: number) {
+  onSpin(_bet: number, _totalWin: number, _rawResult: RawResult, _lineCount: number) {
 
     const game = _rawResult.game;
 
-    const plate: any = game.plate;
-    const prize: any = game.prizes;
+    const plate = game.plate;
+    const prize = game.prizes;
     const win = prize.win[0] / this.lineCount + prize.win[1];
 
     let goldWildCount = 0;
@@ -44,6 +54,9 @@ export class WildStatModule implements IStatModule {
       }
     }
 
+    this.main['total'].count++;
+    this.main['total'].win += win;
+
     if (goldWildCount > 0) {
       this.main[goldWildCount].count++;
       this.main[goldWildCount].win += win;
@@ -54,7 +67,7 @@ export class WildStatModule implements IStatModule {
       const freeResults = free.results;
       for (const res of freeResults) {
         const plate: any = res.plate;
-        const prize: any = res.prize;
+        const prize: any = res.prizes;
         const win = prize.win[0] / this.lineCount + prize.win[1];
 
         let goldWildCount = 0;
@@ -66,6 +79,9 @@ export class WildStatModule implements IStatModule {
             }
           }
         }
+
+        this.free['total'].count++;
+        this.free['total'].win += win;
 
         if (goldWildCount > 0) {
           this.free[goldWildCount].count++;

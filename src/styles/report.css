@@ -2,17 +2,15 @@
 
 /* 1. 報表容器 - 設定全域字型與基礎字重 */
 .report-container {
-  padding: 10px;
+  padding: 0;
   display: flex;
   flex-direction: column;
   gap: 15px;
-  overflow-y: auto;
-  height: 100%;
+  /* overflow-y: auto;
+  height: 100%; */
   
   /* 🔥 修改：使用類似 Bootstrap 的經典字型組合，並加入微軟正黑體確保中文好看 */
   font-family: "Helvetica Neue", Helvetica, Arial, "Microsoft JhengHei", sans-serif;
-  
-  /* 🔥 修改：基礎字重設為 500 (原本通常是 400)，讓整體看起來「有肉」一點 */
   font-weight: 500;
   
   /* 確保字體平滑 */
@@ -81,7 +79,6 @@
   border: 1px solid var(--border-color);
 }
 
-/* ... 其他樣式 (Card, Grid, Highlight) 保持不變 ... */
 .section-card {
   background: var(--bg-panel);
   border: 1px solid var(--border-color);
@@ -96,11 +93,11 @@
   display: flex;
   align-items: center;
   border-bottom: 1px solid var(--border-color);
-  user-select: none;
+  /* user-select: none; */
   transition: background 0.2s;
 }
 .section-header:hover { background: var(--bg-hover); }
-.toggle-icon { margin-right: 8px; font-size: 10px; color: var(--text-secondary); width: 12px; text-align: center; }
+.toggle-icon { margin-right: 8px; font-size: 10px; color: var(--text-secondary); width: 12px; text-align: center; user-select: none; }
 .section-body { padding: 15px; background: var(--bg-app); }
 .grid-3-col { display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px; }
 .stat-box { background: var(--bg-panel); border: 1px solid var(--border-color); border-radius: 4px; padding: 0; overflow: hidden; }
@@ -121,7 +118,9 @@
   background: rgba(14, 99, 156, 0.1); /* 原始淡藍背景 */
 }
 .full-width-table { width: 100%; border-collapse: collapse; border: 1px solid var(--border-color); }
-.full-width-table tr:nth-child(even) { background: rgba(255, 255, 255, 0.02); }
+.full-width-table tr:nth-child(even) { 
+  background: var(--table-stripe); 
+}
 .full-width-table tr:hover { background: var(--bg-hover); color: var(--text-primary); }
 
 /* 兩欄式表格支援 (你剛剛加的) */

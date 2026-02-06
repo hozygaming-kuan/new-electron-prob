@@ -1,4 +1,4 @@
-import { app, BrowserWindow, dialog, ipcMain, shell } from 'electron'
+import { app, BrowserWindow, dialog, ipcMain, Menu, MenuItemConstructorOptions, shell } from 'electron'
 import { fileURLToPath } from 'url'
 import path from 'path'
 import fs from 'fs'
@@ -59,6 +59,51 @@ type SysInfo = {
   targetPrizeType?: number;
   randMode?: string;
 };
+
+function createAppMenu(win: BrowserWindow) {
+
+  const template: MenuItemConstructorOptions[] = [
+    {
+      label: 'File',
+      submenu: [
+        {
+          label: 'Rename Project...', // ✨ 這裡加入修改名稱
+          accelerator: 'CmdOrCtrl+R', // 快捷鍵 Ctrl+R
+          click: () => {
+            win.webContents.send('sys:open-rename-modal');
+          }
+        },
+        { type: 'separator' },
+        { role: 'quit' }
+      ]
+    },
+    {
+      label: 'View',
+      submenu: [
+        { role: 'reload' },
+        { role: 'forceReload' },
+        { role: 'toggleDevTools' },
+        { type: 'separator' },
+        { role: 'resetZoom' },
+        { role: 'zoomIn' },
+        { role: 'zoomOut' },
+        { type: 'separator' },
+        { role: 'togglefullscreen' }
+      ]
+    },
+    {
+      label: 'Window',
+      submenu: [
+        { role: 'minimize' },
+        { role: 'zoom' },
+        { role: 'close' }
+      ]
+    }
+  ];
+
+  const menu = Menu.buildFromTemplate(template);
+  Menu.setApplicationMenu(menu);
+}
 
 function loadStatConfig() {
   try {
@@ -134,9 +179,12 @@ function createWindow() {
     },
   })
 
+  createAppMenu(win);
+
   win.webContents.on('did-finish-load', () => {
     const currentSpec = loadGameSpec();
     const title = currentSpec.name || 'Slot Machine Simulator';
+    win?.setTitle(title); // 確保視窗標題同步
     win?.webContents.send('sys:update-title', title);
   });
 
@@ -159,6 +207,37 @@ app.whenReady().then(() => {
     const config = GameService.getGameConfig();
     return config;
   });
+
+  ipcMain.handle('system:save-project-name', async (_event, newName) => {
+    try {
+      const specPath = path.join(process.env.APP_ROOT, 'electron/rand-core/config/spec.json');
+      let spec: any = {};
+
+      if (fs.existsSync(specPath)) {
+        spec = JSON.parse(fs.readFileSync(specPath, 'utf-8'));
+      }
+
+      // 更新名稱
+      spec.name = newName;
+
+      // 寫回檔案
+      fs.writeFileSync(specPath, JSON.stringify(spec, null, 2));
+      console.log('[Main] Project renamed to:', newName);
+
+      // 更新視窗標題
+      if (win) {
+        win.setTitle(newName);
+        // 通知前端更新顯示
+        win.webContents.send('sys:update-title', newName);
+      }
+
+      return { success: true };
+    } catch (e: any) {
+      console.error('[Main] Rename Error:', e);
+      return { success: false, error: e.message };
+    }
+  });
+  
   // 1. 設定 IPC 監聽
   ipcMain.handle('game:spin', async (_event, spinInfo) => {
 
@@ -492,7 +571,7 @@ app.whenReady().then(() => {
       reportConfigCache = statConfig.components; // 也存設定
       if (progressWin) progressWin.close();
 
-      const rWin = new BrowserWindow({ width: 1200, height: 850, autoHideMenuBar: false, webPreferences: { preload: path.join(__dirname, 'preload.mjs') } });
+      const rWin = new BrowserWindow({ width: 1200, height: 850, autoHideMenuBar: false, title: `模擬統計 ${totalSpins.toLocaleString()} 轉`, webPreferences: { preload: path.join(__dirname, 'preload.mjs') } });
       if (VITE_DEV_SERVER_URL) {
         const url = VITE_DEV_SERVER_URL.endsWith('/') ? VITE_DEV_SERVER_URL : `${VITE_DEV_SERVER_URL}/`;
         rWin.loadURL(`${url}#report`);

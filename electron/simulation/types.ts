@@ -111,3 +111,32 @@ export interface WorkerProgress {
   processed: number;
   percent: number;
 }
+
+// 通用
+export interface Plate {
+  [key: string]: any;
+  reels: number[][];
+}
+
+export interface Prize {
+  [key: string]: any;
+  win: number[];
+}
+
+export interface RawResult {
+  [key: string]: any;
+  game: {
+    plate: Plate;
+    prizes: Prize;
+    free: FreeResult;
+    [key: string]: any;
+  }
+
+}
+
+export interface FreeResult {
+  results: {
+    plate: Plate;
+    prizes: Prize;
+  }[];
+}

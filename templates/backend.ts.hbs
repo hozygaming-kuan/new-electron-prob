@@ -1,4 +1,4 @@
-import { GlobalContext, IStatModule } from '../types';
+import { GlobalContext, IStatModule, RawResult } from '../types';
 
 export class {{name}} implements IStatModule {
   name = '{{keyName}}';
@@ -9,7 +9,7 @@ export class {{name}} implements IStatModule {
     this.define = define;
   }
 
-  onSpin(_bet: number, _totalWin: number, _rawResult: any, _lineCount: number) {
+  onSpin(_bet: number, _totalWin: number, _rawResult: RawResult, _lineCount: number) {
     // TODO: Implement logic
   }
 

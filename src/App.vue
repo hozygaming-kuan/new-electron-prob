@@ -1,9 +1,9 @@
 <script setup lang="ts">
 import SlotMachine from "./components/SlotMachine.vue";
 import { useSlotGame } from "./composables/useSlotGame";
-import ProgressWindow from './components/ProgressWindow.vue';
-import ReportWindow from './components/ReportWindow.vue';
-import { computed, onMounted } from "vue";
+import ProgressWindow from "./components/ProgressWindow.vue";
+import ReportWindow from "./components/ReportWindow.vue";
+import { computed, nextTick, onMounted, onUnmounted, ref } from "vue";
 import "./styles/dashboard.css";
 import "./styles/report.css";
 const {
@@ -34,28 +34,67 @@ const {
   handleExport,
   exportOptions,
   handleModeChange,
-  onLightningClick
+  onLightningClick,
 } = useSlotGame();
 
 const pageType = computed(() => {
   // 支援 ?type=report 和 ?type=progress，或者是 hash 模式
-  if (window.location.hash.includes('report')) return 'report';
-  if (window.location.hash.includes('progress')) return 'progress'; // 🔥 新增
-  return 'dashboard';
+  if (window.location.hash.includes("report")) return "report";
+  if (window.location.hash.includes("progress")) return "progress"; // 🔥 新增
+  return "dashboard";
 });
+
+// --- 專案名稱編輯 Modal 邏輯 ---
+const showRenameModal = ref(false);
+const newProjectName = ref("");
+const nameInputRef = ref<HTMLInputElement | null>(null);
+
+const openRenameModal = async () => {
+  newProjectName.value = document.title; // 預設為當前標題
+  showRenameModal.value = true;
+  await nextTick();
+  nameInputRef.value?.focus();
+};
+
+const closeRenameModal = () => {
+  showRenameModal.value = false;
+};
+
+const saveProjectName = async () => {
+  if (!newProjectName.value.trim()) return;
+
+  const res = await window.ipcRenderer.invoke(
+    "system:save-project-name",
+    newProjectName.value.trim(),
+  );
+  if (!res.success) {
+    console.error(res.error);
+    logs.value.unshift({
+      id: Date.now(),
+      title: `[錯誤] 修改名稱失敗: ${res.error}`,
+      details: [],
+      isExpanded: false,
+    });
+  }
+  closeRenameModal();
+};
 
 onMounted(() => {
   // 監聽後端傳來的標題更新事件
   window.ipcRenderer.on("sys:update-title", (_event, newTitle) => {
-    console.log("[System] Updating title to:", newTitle);
-    document.title = newTitle as string; // 修改網頁標題
+    document.title = newTitle as string;
   });
+  window.ipcRenderer.on("sys:open-rename-modal", openRenameModal);
+});
+
+onUnmounted(() => {
+  // 記得移除監聽
+  window.ipcRenderer.off("sys:open-rename-modal", openRenameModal);
 });
 </script>
 
 <template>
-
- <ReportWindow v-if="pageType === 'report'" />
+  <ReportWindow v-if="pageType === 'report'" />
 
   <ProgressWindow v-else-if="pageType === 'progress'" />
 
@@ -378,5 +417,27 @@ onMounted(() => {
         </button>
       </div>
     </aside>
+  </div>
+
+  <div
+    v-if="showRenameModal"
+    class="modal-overlay"
+    @click.self="closeRenameModal"
+  >
+    <div class="modal-content">
+      <div class="modal-title">修改專案名稱</div>
+      <input
+        ref="nameInputRef"
+        v-model="newProjectName"
+        class="modal-input"
+        placeholder="Enter new project name"
+        @keyup.enter="saveProjectName"
+        @keyup.esc="closeRenameModal"
+      />
+      <div class="modal-actions">
+        <button class="btn-cancel" @click="closeRenameModal">Cancel</button>
+        <button class="btn-save" @click="saveProjectName">Save</button>
+      </div>
+    </div>
   </div>
 </template>
