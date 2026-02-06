@@ -7,8 +7,6 @@ export class StatsManager {
   public exitInfo: any;
 
   constructor(config: any) {
-    // ... (初始化邏輯保持不變，載入 BaseStatModule 等) ...
-    // 這裡省略重複代碼，請保留原本的 constructor 邏輯
     const BaseClass = StatModuleRegistry['BaseStatModule'];
     const base = new BaseClass();
     if (config.exitInfo) {
@@ -66,11 +64,27 @@ export class StatsManager {
     return raw;
   }
 
-  public getFinalReport(rate?: number) {
+  public getFinalReport(rate?: number, targetRTP: number = 0.965) {
     const report: any = {};
+
+    // 1. 先取得 BaseStatModule 的結果 (它是資料源頭)
+    const baseModule = this.modules.find(m => m.name === 'base');
+    const baseResult = baseModule ? baseModule.getResult(rate) : {};
+
+    // 準備要傳給其他模組的「全域資訊包」
+    const globalContext = {
+      spinTimes: baseResult.spinTimes || 1,
+      freeSpinTimes: baseResult.freeSpinTimes,
+      totalBet: baseResult.totalBet || 0,
+      bet: baseResult.bet
+    };
+
+    // 2. 遍歷所有模組，並把 globalContext 傳進去
     this.modules.forEach(m => {
-      report[m.name] = m.getResult(rate);
+      // 🔥 關鍵：把 globalContext 傳進去讓模組自己算
+      report[m.name] = m.getResult(rate, targetRTP, globalContext);
     });
+
     return report;
   }
 }

@@ -1,0 +1,30 @@
+import { GlobalContext, IStatModule } from '../types';
+
+export class {{name}} implements IStatModule {
+  name = '{{keyName}}';
+  private data: any = {}; 
+  private define: any;
+
+  init(define: any) {
+    this.define = define;
+  }
+
+  onSpin(_bet: number, _totalWin: number, _rawResult: any, _lineCount: number) {
+    // TODO: Implement logic
+  }
+
+  merge(_otherData: any) {
+    // TODO: Implement merge logic
+  }
+
+  getData() { 
+    return this.data; 
+  }
+
+  getResult(_rate: number = 1, _targetRTP: number = 0.965, globalContext: GlobalContext) {
+    return {
+       name: this.name,
+       ...this.data
+    };
+  }
+}

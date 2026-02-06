@@ -405,6 +405,7 @@ app.whenReady().then(() => {
     const spinsPerWorker = Math.floor(totalSpins / workerCount);
     const randCorePath = path.join(process.env.APP_ROOT, 'electron/rand-core/index.js');
     const config = GameService.getGameConfig();
+    const defineConfig = GameService.getDefineConfig();
     let rate = 1;
     const manager = new StatsManager({
       ...statConfig,
@@ -414,6 +415,8 @@ app.whenReady().then(() => {
         exitMaxWin: rawConfig.exitInfo.exitMaxWin
       }
     });
+
+    manager.init(defineConfig);
 
     const promises = [];
     const workerProgress = new Array(workerCount).fill(0);
@@ -483,7 +486,8 @@ app.whenReady().then(() => {
       if (!pool) {
         return { success: false, error: 'Simulation Cancelled by User' };
       }
-      const finalReport = manager.getFinalReport(rate);
+      const finalReport = manager.getFinalReport(rate, rawConfig.simConfig.targetRTP);
+      
       reportCache = finalReport;
       reportConfigCache = statConfig.components; // 也存設定
       if (progressWin) progressWin.close();

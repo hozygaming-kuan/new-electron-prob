@@ -4,8 +4,10 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
-    "dev": "chcp 65001 && vite",
-    "build": "vue-tsc && vite build && electron-builder",
+    "scaffold": "node scaffold.cjs",
+    "dev:vite": "chcp 65001 && vite",
+    "dev": "node scaffold.cjs --watch",
+    "build": "node scaffold.cjs && vue-tsc && vite build && electron-builder",
     "preview": "vite preview"
   },
   "build": {

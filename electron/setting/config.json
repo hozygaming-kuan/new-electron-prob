@@ -12,6 +12,10 @@
     {
       "model": "ScatterStatModule",
       "view": "ScatterReportView"
+    },
+    {
+      "model": "WildStatModule",
+      "view": "WildReportView"
     }
   ]
 }

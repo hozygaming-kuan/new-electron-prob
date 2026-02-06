@@ -35,6 +35,11 @@ class GameService {
     };
   }
 
+  getDefineConfig() {
+    
+    return this.slotRand.configMap.get('define');
+  }
+
   init() {
     console.log('[GameService] Initializing...');
 

@@ -171,7 +171,7 @@ const distLists = computed(() => {
               </tr>
               <tr>
                 <td>CI (95%)</td>
-                <td>{{ stats.total.ci_min }} ~ {{ stats.total.ci_max }}</td>
+                <td>{{ fmt.percent(stats.total.ci_min) }} ~ {{ fmt.percent(stats.total.ci_max) }}</td>
               </tr>
               <tr>
                 <td>最大倍數 (MaxWin)</td>

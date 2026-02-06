@@ -1,3 +1,4 @@
+
 <template>
   <div class="report-window-container">
     <div v-if="loading" class="loading">Loading Report Data...</div>
@@ -18,22 +19,21 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue';
 import { ReportViewRegistry } from './reports';
-import '../styles/report.css'; // 引入樣式
+// import '../styles/report.css'; 
 
 const loading = ref(true);
 const error = ref('');
 const resultData = ref<any>(null);
 const reportComponents = ref<any[]>([]);
 
+// 🔥 修改這裡：改成通用邏輯，自動把 StatModule 去掉並轉小寫
+// 這樣 BaseStatModule -> base, LineStatModule -> line, ScatterStatModule -> scatter
 const getResultKey = (modelName: string) => {
-  if (modelName === 'BaseStatModule') return 'base';
-  if (modelName === 'LineStatModule') return 'lines';
-  return modelName.toLowerCase();
+  return modelName.replace('StatModule', '').toLowerCase();
 };
 
 onMounted(async () => {
   try {
-    // 🔥 向後端領取暫存的報表數據
     const data = await window.ipcRenderer.invoke('report:get-data');
     if (data && data.result) {
       resultData.value = data.result;
@@ -49,20 +49,14 @@ onMounted(async () => {
 });
 </script>
 
-/* src/components/ReportWindow.vue */
-
 <style scoped>
 .report-window-container {
-  /* 🔥 關鍵修改 1：設定固定高度為視窗高度 */
   height: 100vh; 
-  
-  /* 🔥 關鍵修改 2：內容溢出時，讓這個容器自己產生捲軸 */
   overflow-y: auto; 
-
   padding: 20px;
-  background-color: var(--bg-app);
-  color: var(--text-primary);
-  box-sizing: border-box; /* 確保 padding 不會撐破寬度 */
+  background-color: var(--bg-app, #f0f0f0);
+  color: var(--text-primary, #333);
+  box-sizing: border-box;
 }
 
 .report-wrapper { 
@@ -75,20 +69,19 @@ onMounted(async () => {
   font-size: 18px; 
 }
 .error { 
-  color: var(--danger); 
+  color: red; 
 }
 
-/* (選用) 讓捲軸漂亮一點，跟 Dashboard 統一風格 */
 .report-window-container::-webkit-scrollbar {
   width: 10px;
 }
 .report-window-container::-webkit-scrollbar-track {
-  background: var(--bg-app);
+  background: var(--bg-app, #f0f0f0);
 }
 .report-window-container::-webkit-scrollbar-thumb {
   background: #555;
   border-radius: 5px;
-  border: 2px solid var(--bg-app);
+  border: 2px solid var(--bg-app, #f0f0f0);
 }
 .report-window-container::-webkit-scrollbar-thumb:hover {
   background: #777;

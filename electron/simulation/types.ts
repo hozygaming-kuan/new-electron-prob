@@ -87,8 +87,15 @@ export interface IStatModule {
   init(define: any): void;
   onSpin(bet: number, totalWin: number, rawResult: any, lineCount: number): void;
   merge(otherData: any): void;
-  getResult(rate?: number): any;
   getData(): any;
+  getResult(rate?: number, targetRTP?: number, globalContext?: GlobalContext): any;
+}
+
+export interface GlobalContext {
+  spinTimes: number;
+  freeSpinTimes: number;
+  totalBet: number;
+  bet: number;
 }
 
 export interface WorkerInput {

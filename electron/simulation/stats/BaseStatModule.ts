@@ -5,7 +5,6 @@ const GAPS = [0, 0.01, 0.25, 0.5, 1, 2, 3, 5, 6, 8, 10, 15, 20, 30, 50, 100, 200
 
 export class BaseStatModule implements IStatModule {
   name = 'base';
-  private define: any = null;
   private data: FullStatReport;
   private gaps = GAPS;
   private exitInfo = { exitStart: 1000, exitEnd: 0, exitMaxWin: 2000 };
@@ -18,9 +17,7 @@ export class BaseStatModule implements IStatModule {
     if (info) this.exitInfo = { ...this.exitInfo, ...info };
   }
 
-  public init(define: any) {
-    this.define = define;
-  }
+  public init(_define: any) { }
 
   // 🔥 這裡的 totalWin 是 Manager 算好傳進來的
   onSpin(bet: number, totalWin: number, rawResult: any, lineCount: number) {
