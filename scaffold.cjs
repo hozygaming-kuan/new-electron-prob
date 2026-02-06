@@ -1,6 +1,6 @@
 const fs = require('fs');
 const path = require('path');
-const { spawn } = require('child_process');
+const { spawn, execSync } = require('child_process');
 
 // --- 1. 設定路徑 ---
 const CONFIG_PATH = path.join(__dirname, 'electron/setting/config.json');
@@ -13,81 +13,10 @@ const BACKEND_REGISTRY = path.join(BACKEND_DIR, 'registry.ts');
 const FRONTEND_DIR = path.join(__dirname, 'src/components/reports');
 const FRONTEND_REGISTRY = path.join(FRONTEND_DIR, 'index.ts');
 
-// ReportWindow 路徑
-const REPORT_WINDOW_PATH = path.join(__dirname, 'src/components/ReportWindow.vue');
-
 // 模板路徑
 const TPL_DIR = path.join(__dirname, 'templates');
 const TPL_BACKEND = path.join(TPL_DIR, 'backend.ts.hbs');
 const TPL_FRONTEND = path.join(TPL_DIR, 'frontend.vue.hbs');
-
-// ReportWindow 的模板 (核心組件，維持在腳本內)
-const REPORT_WINDOW_TEMPLATE = `
-<template>
-  <div class="report-window-container">
-    <div v-if="loading" class="loading">Loading Report Data...</div>
-    <div v-else-if="error" class="error">{{ error }}</div>
-    
-    <div v-else class="report-content">
-      <div v-for="(comp, index) in reportComponents" :key="index" class="report-wrapper">
-        <component 
-          v-if="ReportViewRegistry[comp.view]"
-          :is="ReportViewRegistry[comp.view]" 
-          :data="resultData[getResultKey(comp.model)]" 
-        />
-      </div>
-    </div>
-  </div>
-</template>
-
-<script setup lang="ts">
-import { ref, onMounted } from 'vue';
-import { ReportViewRegistry } from './reports';
-
-const loading = ref(true);
-const error = ref('');
-const resultData = ref<any>(null);
-const reportComponents = ref<any[]>([]);
-
-// 自動把 StatModule 去掉並轉小寫
-const getResultKey = (modelName: string) => {
-  return modelName.replace('StatModule', '').toLowerCase();
-};
-
-onMounted(async () => {
-  try {
-    const data = await window.ipcRenderer.invoke('report:get-data');
-    if (data && data.result) {
-      resultData.value = data.result;
-      reportComponents.value = data.components || [];
-    } else {
-      error.value = "No report data found.";
-    }
-  } catch (e: any) {
-    error.value = e.message;
-  } finally {
-    loading.value = false;
-  }
-});
-</script>
-
-<style scoped>
-.report-window-container {
-  height: 100vh; 
-  overflow-y: auto; 
-  padding: 20px;
-  background-color: var(--bg-app, #f0f0f0);
-  color: var(--text-primary, #333);
-  box-sizing: border-box;
-}
-.report-wrapper { margin-bottom: 20px; }
-.loading, .error { text-align: center; margin-top: 50px; font-size: 18px; }
-.error { color: red; }
-.report-window-container::-webkit-scrollbar { width: 10px; }
-.report-window-container::-webkit-scrollbar-track { background: var(--bg-app, #f0f0f0); }
-.report-window-container::-webkit-scrollbar-thumb { background: #555; border-radius: 5px; border: 2px solid var(--bg-app, #f0f0f0); }
-</style>
-`;
 
 // --- Helper Functions ---
 
@@ -125,16 +54,6 @@ function generate() {
   } catch (e) {
     console.error('❌ JSON Parse Error. Waiting for fix...');
     return;
-  }
-
-  // 1. ReportWindow.vue 檢查與更新
-  const currentReportContent = getOldContent(REPORT_WINDOW_PATH);
-  if (currentReportContent.trim() !== REPORT_WINDOW_TEMPLATE.trim()) {
-    fs.writeFileSync(REPORT_WINDOW_PATH, REPORT_WINDOW_TEMPLATE);
-    console.log(currentReportContent === ''
-      ? `✨ [Auto-Gen] Created Core View: ReportWindow.vue`
-      : `🔄 [Auto-Gen] Updated Core View: ReportWindow.vue`
-    );
   }
 
   const components = config.components || [];
@@ -220,7 +139,51 @@ if (process.argv.includes('--watch')) {
   });
 
   console.log('🚀 Starting Vite...');
+
   const viteProcess = spawn('npm', ['run', 'dev:vite'], { stdio: 'inherit', shell: true });
 
-  process.on('exit', () => viteProcess.kill());
+  // 🔥🔥🔥 新增：建立生命週期信號檔 🔥🔥🔥
+  const SESSION_FILE = path.join(__dirname, '.dev-session');
+  fs.writeFileSync(SESSION_FILE, 'running'); // 建立檔案
+
+  let isCleaning = false;
+
+  const cleanup = () => {
+    if (isCleaning) return;
+    isCleaning = true;
+
+    console.log('🛑 Cleaning up processes...');
+
+    // 移除信號檔 (如果是按 Ctrl+C 結束的)
+    if (fs.existsSync(SESSION_FILE)) {
+      try { fs.unlinkSync(SESSION_FILE); } catch (e) { }
+    }
+
+    if (viteProcess.pid) {
+      if (process.platform === 'win32') {
+        try {
+          // 強制殺死進程樹
+          execSync(`taskkill /pid ${viteProcess.pid} /f /t`, { stdio: 'ignore' });
+        } catch (e) { }
+      } else {
+        try { process.kill(-viteProcess.pid); } catch (e) { }
+      }
+    }
+
+    process.exit(0);
+  };
+
+  // 🔥🔥🔥 新增：每秒檢查信號檔是否存在 🔥🔥🔥
+  // 如果檔案被 Electron 刪除了，這裡就會觸發 cleanup
+  const sessionWatcher = setInterval(() => {
+    if (!fs.existsSync(SESSION_FILE)) {
+      console.log('🔌 Detected app closure, shutting down terminal...');
+      clearInterval(sessionWatcher);
+      cleanup();
+    }
+  }, 1000);
+
+  process.on('SIGINT', cleanup);
+  process.on('SIGTERM', cleanup);
+  process.on('exit', cleanup);
 }

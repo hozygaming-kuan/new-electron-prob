@@ -127,7 +127,10 @@ function loadStatConfig() {
 
 function loadGameSpec() {
   try {
-    const specPath = path.join(process.env.APP_ROOT, 'electron/rand-core/config/spec.json');
+    const specPath = app.isPackaged
+      ? path.join(process.resourcesPath, 'rand-core/config/spec.json')
+      : path.join(process.env.APP_ROOT, 'electron/rand-core/config/spec.json');
+
     if (fs.existsSync(specPath)) {
       const data = fs.readFileSync(specPath, 'utf-8');
       return JSON.parse(data);
@@ -237,7 +240,6 @@ app.whenReady().then(() => {
       return { success: false, error: e.message };
     }
   });
-  
   // 1. 設定 IPC 監聽
   ipcMain.handle('game:spin', async (_event, spinInfo) => {
 
@@ -365,7 +367,9 @@ app.whenReady().then(() => {
       console.log(`[Main] Exporting Game: ${exportFolderName}`, options);
 
       // 2. 定義來源路徑 (你的 rand-core 位置)
-      const sourcePath = path.join(process.env.APP_ROOT, 'electron/rand-core');
+      const sourcePath = app.isPackaged
+        ? path.join(process.resourcesPath, 'rand-core')
+        : path.join(process.env.APP_ROOT, 'electron/rand-core');
 
       // 3. 開啟資料夾選擇框
       const result = await dialog.showOpenDialog({
@@ -414,7 +418,9 @@ app.whenReady().then(() => {
 
       if (exportSource) {
         console.log('[Main] Copying Source XLS...');
-        const xlsSourcePath = path.join(process.cwd(), 'xls', 'config-game');
+        const xlsSourcePath = app.isPackaged
+          ? path.join(process.resourcesPath, '../xls/config-game') // 假設使用者把 xls 放在 exe 旁邊的 xls 資料夾
+          : path.join(process.cwd(), 'xls', 'config-game');
         const xlsDestPath = path.join(destPath, 'config-game-source');
 
         // 確保來源存在
@@ -482,7 +488,10 @@ app.whenReady().then(() => {
     const totalSpins = rawConfig.simConfig.rounds || 100000;
     const workerCount = 10;
     const spinsPerWorker = Math.floor(totalSpins / workerCount);
-    const randCorePath = path.join(process.env.APP_ROOT, 'electron/rand-core/index.js');
+    const randCorePath = app.isPackaged
+      ? path.join(process.resourcesPath, 'rand-core/index.js')
+      : path.join(process.env.APP_ROOT, 'electron/rand-core/index.js');
+
     const config = GameService.getGameConfig();
     const defineConfig = GameService.getDefineConfig();
     let rate = 1;
@@ -566,7 +575,7 @@ app.whenReady().then(() => {
         return { success: false, error: 'Simulation Cancelled by User' };
       }
       const finalReport = manager.getFinalReport(rate, rawConfig.simConfig.targetRTP);
-      
+
       reportCache = finalReport;
       reportConfigCache = statConfig.components; // 也存設定
       if (progressWin) progressWin.close();
@@ -594,6 +603,18 @@ app.whenReady().then(() => {
 
 app.on('window-all-closed', () => {
   if (process.platform !== 'darwin') {
+    if (process.env.APP_ROOT) {
+      const sessionFile = path.join(process.env.APP_ROOT, '.dev-session');
+      if (fs.existsSync(sessionFile)) {
+        try {
+          fs.unlinkSync(sessionFile);
+          console.log('[Main] Session file removed, terminal should exit.');
+        } catch (e) {
+          console.error('[Main] Failed to remove session file:', e);
+        }
+      }
+    }
+
     app.quit()
     win = null
   }

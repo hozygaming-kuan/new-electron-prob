@@ -7,11 +7,12 @@
     "scaffold": "node scaffold.cjs",
     "dev:vite": "chcp 65001 && vite",
     "dev": "node scaffold.cjs --watch",
-    "build": "node scaffold.cjs && vue-tsc && vite build && electron-builder",
+    "build": "node scaffold.cjs && vite build && electron-builder",
     "preview": "vite preview"
   },
   "build": {
     "appId": "slotGame",
+    "asar": false,
     "extraResources": [
       {
         "from": "electron/rand-core",
